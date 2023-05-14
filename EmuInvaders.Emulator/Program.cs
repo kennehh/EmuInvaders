@@ -81,7 +81,7 @@ namespace EmuInvaders.Emulator
 
             while (!quit) 
             {
-                while (SDL_PollEvent(out var e) > 0) 
+                while (!quit && SDL_PollEvent(out var e) > 0) 
                 {
                     if (e.type == SDL_EventType.SDL_QUIT)
                     {
@@ -147,6 +147,12 @@ namespace EmuInvaders.Emulator
                     }
                 }
             }
+
+            SDL_DestroyRenderer(renderer);
+            SDL_DestroyWindow(window);
+            SDL_Quit();
+
+            machine.Stop();
         }
     }
 }

@@ -16,6 +16,7 @@ namespace EmuInvaders.Machine
         private readonly ShiftRegister shiftRegister = new ShiftRegister();
         private readonly Stopwatch timer = new Stopwatch();
         private int nextInterrupt = 0x08;
+        private bool stop = false;
 
         public void Initialise()
         {
@@ -29,7 +30,7 @@ namespace EmuInvaders.Machine
         {
             int cycles = 0;
 
-            while (true)
+            while (!stop)
             {
                 timer.Start();
 
@@ -55,6 +56,8 @@ namespace EmuInvaders.Machine
                 timer.Reset();
             }
         }
+
+        public void Stop() => stop = true;
 
         private void GenerateInterrupt()
         {
