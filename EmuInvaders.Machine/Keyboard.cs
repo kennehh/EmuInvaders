@@ -22,42 +22,45 @@ namespace EmuInvaders.Machine
             switch (key)
             {
                 case KeyCode.Coin:
-                    InputValue |= 0b00000001;
+                    InputValue |= 1 << 0;
                     break;
                 case KeyCode.Left:
-                    InputValue |= 0b00100000;
+                    InputValue |= 1 << 5;
                     break;
                 case KeyCode.Right:
-                    InputValue |= 0b01000000;
+                    InputValue |= 1 << 6;
                     break;
                 case KeyCode.Fire:
-                    InputValue |= 0b00010000;
+                    InputValue |= 1 << 4;
                     break;
                 case KeyCode.Start:
-                    InputValue |= 0b00000100;
+                    InputValue |= 1 << 2;
                     break;
             }
         }
 
         public void KeyUp(KeyCode key)
         {
-            switch (key)
+            unchecked
             {
-                case KeyCode.Coin:
-                    InputValue &= 0b00000001;
-                    break;
-                case KeyCode.Left:
-                    InputValue &= 0b00100000;
-                    break;
-                case KeyCode.Right:
-                    InputValue &= 0b01000000;
-                    break;
-                case KeyCode.Fire:
-                    InputValue &= 0b00010000;
-                    break;
-                case KeyCode.Start:
-                    InputValue &= 0b00000100;
-                    break;
+                switch (key)
+                {
+                    case KeyCode.Coin:
+                        InputValue &= (byte)(~(1 << 0));
+                        break;
+                    case KeyCode.Left:
+                        InputValue &= (byte)(~(1 << 5));
+                        break;
+                    case KeyCode.Right:
+                        InputValue &= (byte)(~(1 << 6));
+                        break;
+                    case KeyCode.Fire:
+                        InputValue &= (byte)(~(1 << 4));
+                        break;
+                    case KeyCode.Start:
+                        InputValue &= (byte)(~(1 << 2));
+                        break;
+                }
             }
         }
     }

@@ -29,6 +29,7 @@ namespace EmuInvaders.Machine
         public void Run()
         {
             int cycles = 0;
+            var renderNow = true;
 
             while (!stop)
             {
@@ -51,7 +52,16 @@ namespace EmuInvaders.Machine
                     Thread.Sleep((int)sleep);
                 }
 
-                Render(this, new RefreshDisplayEventArgs(cpu.State.Memory.FrameBuffer.ToArray()));
+                if (renderNow)
+                {
+                    Render(this, new RefreshDisplayEventArgs(cpu.State.Memory.FrameBuffer.ToArray()));
+                    renderNow = false;
+                }
+                else
+                {
+                    renderNow = true;
+                }
+
                 cycles -= 16667;
                 timer.Reset();
             }
