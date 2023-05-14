@@ -224,7 +224,7 @@ namespace EmuInvaders.Cpu
             [0xcc] = new Opcode("CZ adr",    3,   state => Operations.CALL(state, state.Flags.Zero)),
             [0xcd] = new Opcode("CALL adr",  3,   state => Operations.CALL(state)),
             [0xce] = new Opcode("ACI",       2,   state => Operations.ACI(state)),
-            [0xcf] = new Opcode("RST 1",     1,   state => Operations.RST(state, 1)),
+            [0xcf] = new Opcode("RST 1",     1,   state => Operations.RST(state, 1 * 8)),
             [0xd0] = new Opcode("RNC",       1,   state => Operations.RET(state, !state.Flags.Carry)),
             [0xd1] = new Opcode("POP D",     1,   state => Operations.POP(state, RegisterPair.DE)),
             [0xd2] = new Opcode("JNC adr",   3,   state => Operations.JMP(state, !state.Flags.Carry)),
@@ -232,7 +232,7 @@ namespace EmuInvaders.Cpu
             [0xd4] = new Opcode("CNC adr",   3,   state => Operations.CALL(state, !state.Flags.Carry)),
             [0xd5] = new Opcode("PUSH D",    1,   state => Operations.PUSH(state, RegisterPair.DE)),
             [0xd6] = new Opcode("SUI",       2,   state => Operations.SUI(state)),
-            [0xd7] = new Opcode("RST 2",     1,   state => Operations.RST(state, 2)),
+            [0xd7] = new Opcode("RST 2",     1,   state => Operations.RST(state, 2 * 8)),
             [0xd8] = new Opcode("RC",        1,   state => Operations.RET(state, state.Flags.Carry)),
             [0xd9] = new Opcode("NOP",       1,   state => Operations.NOP(state)),
             [0xda] = new Opcode("JC adr",    3,   state => Operations.JMP(state, state.Flags.Carry)),
@@ -240,7 +240,7 @@ namespace EmuInvaders.Cpu
             [0xdc] = new Opcode("CC adr",    3,   state => Operations.CALL(state, state.Flags.Carry)),
             [0xdd] = new Opcode("NOP",       1,   state => Operations.NOP(state)),
             [0xde] = new Opcode("SBI",       2,   state => Operations.SBI(state)),
-            [0xdf] = new Opcode("RST 3",     1,   state => Operations.RST(state, 3)),
+            [0xdf] = new Opcode("RST 3",     1,   state => Operations.RST(state, 3 * 8)),
             [0xe0] = new Opcode("RPO",       1,   state => Operations.RET(state, !state.Flags.Parity)),
             [0xe1] = new Opcode("POP H",     1,   state => Operations.POP(state, RegisterPair.HL)),
             [0xe2] = new Opcode("JPO adr",   3,   state => Operations.JMP(state, !state.Flags.Parity)),
@@ -248,7 +248,7 @@ namespace EmuInvaders.Cpu
             [0xe4] = new Opcode("CPO adr",   3,   state => Operations.CALL(state, !state.Flags.Parity)),
             [0xe5] = new Opcode("PUSH H",    1,   state => Operations.PUSH(state, RegisterPair.HL)),
             [0xe6] = new Opcode("ANI",       2,   state => Operations.ANI(state)),
-            [0xe7] = new Opcode("RST 4",     1,   state => Operations.RST(state, 4)),
+            [0xe7] = new Opcode("RST 4",     1,   state => Operations.RST(state, 4 * 8)),
             [0xe8] = new Opcode("RPE",       1,   state => Operations.RET(state, state.Flags.Parity)),
             [0xe9] = new Opcode("PCHL",      1,   state => Operations.PCHL(state)),
             [0xea] = new Opcode("JPE adr",   3,   state => Operations.JMP(state, state.Flags.Parity)),
@@ -256,7 +256,7 @@ namespace EmuInvaders.Cpu
             [0xec] = new Opcode("CPE adr",   3,   state => Operations.CALL(state, state.Flags.Parity)),
             [0xed] = new Opcode("NOP",       1,   state => Operations.NOP(state)),
             [0xee] = new Opcode("XRI",       2,   state => Operations.XRI(state)),
-            [0xef] = new Opcode("RST 5",     1,   state => Operations.RST(state, 5)),
+            [0xef] = new Opcode("RST 5",     1,   state => Operations.RST(state, 5 * 8)),
             [0xf0] = new Opcode("RP",        1,   state => Operations.RET(state, !state.Flags.Sign)),
             [0xf1] = new Opcode("POP PSW",    1,   state => Operations.POP_PSW(state)),
             [0xf2] = new Opcode("JP adr",    3,   state => Operations.JMP(state, !state.Flags.Sign)),
@@ -264,7 +264,7 @@ namespace EmuInvaders.Cpu
             [0xf4] = new Opcode("CP adr",    3,   state => Operations.CALL(state, !state.Flags.Sign)),
             [0xf5] = new Opcode("PUSH PSW",  1,   state => Operations.PUSH_PSW(state)),
             [0xf6] = new Opcode("ORI",       2,   state => Operations.ORI(state)),
-            [0xf7] = new Opcode("RST 6",     1,   state => Operations.RST(state, 6)),
+            [0xf7] = new Opcode("RST 6",     1,   state => Operations.RST(state, 6 * 8)),
             [0xf8] = new Opcode("RM",        1,   state => Operations.RET(state, state.Flags.Sign)),
             [0xf9] = new Opcode("SPHL",      1,   state => Operations.SPHL(state)),
             [0xfa] = new Opcode("JM adr",    3,   state => Operations.JMP(state, state.Flags.Sign)),
@@ -272,7 +272,7 @@ namespace EmuInvaders.Cpu
             [0xfc] = new Opcode("CM adr",    3,   state => Operations.CALL(state, state.Flags.Sign)),
             [0xfd] = new Opcode("NOP",       1,   state => Operations.NOP(state)),
             [0xfe] = new Opcode("CPI",       2,   state => Operations.CPI(state)),
-            [0xff] = new Opcode("RST 7",     1,   state => Operations.RST(state, 7))
+            [0xff] = new Opcode("RST 7",     1,   state => Operations.RST(state, 7 * 8))
         };
 
         public Intel8080()
@@ -285,15 +285,15 @@ namespace EmuInvaders.Cpu
             State = new CpuState(new Memory(memorySize));
         }
 
-        public void LoadRom(string path)
+        public void LoadRom(string path, ushort offset = 0)
         {
             var rom = File.ReadAllBytes(path);
-            State.Memory.Load(rom, 0);
+            State.Memory.Load(rom, offset);
         }
 
         public void LoadCpuTestRom(string path)
         {
-            using (var file = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var file = File.OpenRead(path))
             {
                 var rom = new byte[file.Length + 0x100];
                 file.Read(rom, 0x100, (int)file.Length);
@@ -319,22 +319,42 @@ namespace EmuInvaders.Cpu
             var code = State.Memory.ReadInt8(State.PC);
             var oldPC = State.PC;
 
+            var opcode = GetOpcode(code);
+            var cycles = opcode.Execute(State);
+            //Console.Write($"{State.PC:x4}\t{opcode.Instruction}\t(0x{code:x2})\tA:{State.A:x2},B:{State.B:x2},C:{State.C:x2},D:{State.D:x2},E:{State.E:x2},H:{State.H},L:{State.L},M:{State.M:x2},SP:{State.Stack.SP:x4},B:{State.BC:x4},DE:{State.DE:x4},HL:{State.HL:x4}");
+            //Console.WriteLine($" - Flags: Z:{State.Flags.Zero.ToBit()},S:{State.Flags.Sign.ToBit()},P:{State.Flags.Parity.ToBit()},C:{State.Flags.Carry.ToBit()},AC:{State.Flags.AuxCarry.ToBit()}");
+            if (State.PC == oldPC)
+            {
+                State.PC += opcode.Size;
+            }
+            return cycles;
+        }
+
+        public Opcode GetOpcode(byte code)
+        {
             if (opcodes.TryGetValue(code, out var opcode))
             {
-                //Thread.Sleep(2);
-                var cycles = opcode.Execute(State);
-                //Console.Write($"{State.PC:x4}\t{opcode.Instruction}\t(0x{code:x2})\tA:{State.A:x2},B:{State.B:x2},C:{State.C:x2},D:{State.D:x2},E:{State.E:x2},H:{State.H},L:{State.L},M:{State.M:x2},SP:{State.Stack.SP:x4},B:{State.BC:x4},DE:{State.DE:x4},HL:{State.HL:x4}");
-                //Console.WriteLine($" - Flags: Z:{State.Flags.Zero.ToBit()},S:{State.Flags.Sign.ToBit()},P:{State.Flags.Parity.ToBit()},C:{State.Flags.Carry.ToBit()},AC:{State.Flags.AuxCarry.ToBit()}");
-                if (State.PC == oldPC)
-                {
-                    State.PC += opcode.Size;
-                }
-                return cycles;
+                return opcode;
             }
             else
             {
                 throw new NotImplementedException($"Opcode not implemented: 0x{code:x2}");
             }
+        }
+
+        public void ConnectInputDevice(byte port, Func<byte> inputFunc)
+        {
+            State.InputDevices[port] = inputFunc;
+        }
+
+        public void ConnectOutputDevice(byte port, Action<byte> outputDevice)
+        {
+            State.OutputDevices[port] = outputDevice;
+        }
+
+        public void GenerateInterrupt(int interruptNum)
+        {
+            Operations.RST(State, interruptNum);
         }
     }
 }

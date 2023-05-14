@@ -7,7 +7,7 @@ namespace EmuInvaders.Cpu
 {
     public class Memory
     {
-        public ReadOnlyMemory<byte> VideoBuffer { get; private set; }
+        public ReadOnlyMemory<byte> FrameBuffer { get; private set; }
 
         public int Length => memory.Length;
 
@@ -15,14 +15,14 @@ namespace EmuInvaders.Cpu
         private ushort readOnlyStart = 0;
         private ushort readOnlyEnd = 0;
 
-        public Memory(int size)
+        internal Memory(int size)
         {
             memory = new byte[size];
         }
 
-        public void SetVideoBuffer(ushort start, ushort end)
+        public void SetFrameBufferRegion(ushort start, ushort end)
         {
-            VideoBuffer = GetSubsetOfMemory(start, end);
+            FrameBuffer = GetSubsetOfMemory(start, end);
         }
 
         internal void Load(byte[] data, ushort dstOffset)

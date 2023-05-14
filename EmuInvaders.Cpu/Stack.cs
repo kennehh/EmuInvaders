@@ -11,25 +11,25 @@ namespace EmuInvaders.Cpu
 
         private Memory memory;
 
-        public Stack(Memory memory)
+        internal Stack(Memory memory)
         {
             this.memory = memory;
         }
 
-        public void Push(ushort value)
+        internal void Push(ushort value)
         {
             memory.WriteInt16((ushort)(SP - 2), value);
             SP -= 2;
         }
 
-        public void Push(byte high, byte low)
+        internal void Push(byte high, byte low)
         {
             memory.WriteInt8((ushort)(SP - 2), high);
             memory.WriteInt8((ushort)(SP - 1), low);
             SP -= 2;
         }
 
-        public ushort Pop()
+        internal ushort Pop()
         {
             var value = memory.ReadInt16(SP);
             SP += 2;

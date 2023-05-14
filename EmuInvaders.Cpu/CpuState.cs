@@ -10,26 +10,25 @@ namespace EmuInvaders.Cpu
         public Stack Stack { get; }
         public Memory Memory { get; }
         public FlagsState Flags { get; }
-        public IInputHandler InputHandler { get; set; }
-        public IOutputHandler OutputHandler { get; set; }
-        public bool InterruptsEnabled { get; set; } = false;
-        public bool Halted { get; set; } = false;
-        public string CpuDiagMessage { get; set; }
 
-        public ushort PC { get; set; }
+        public bool InterruptsEnabled { get; internal set; } = false;
+        public bool Halted { get; internal set; } = false;
+        public string CpuDiagMessage { get; internal set; }
 
-        public byte A { get; set; }
-        public byte B { get; set; }
-        public byte C { get; set; }
-        public byte D { get; set; }
-        public byte E { get; set; }
-        public byte H { get; set; }
-        public byte L { get; set; }
+        public ushort PC { get; internal set; }
+
+        public byte A { get; internal set; }
+        public byte B { get; internal set; }
+        public byte C { get; internal set; }
+        public byte D { get; internal set; }
+        public byte E { get; internal set; }
+        public byte H { get; internal set; }
+        public byte L { get; internal set; }
 
         public ushort BC
         {
             get => Utils.GetInt16(B, C);
-            set
+            internal set
             {
                 C = Utils.GetHighInt8(value);
                 B = Utils.GetLowInt8(value);
@@ -39,7 +38,7 @@ namespace EmuInvaders.Cpu
         public ushort DE
         {
             get => Utils.GetInt16(D, E);
-            set
+            internal set
             {
                 E = Utils.GetHighInt8(value);
                 D = Utils.GetLowInt8(value);
@@ -49,7 +48,7 @@ namespace EmuInvaders.Cpu
         public ushort HL
         {
             get => Utils.GetInt16(H, L);
-            set
+            internal set
             {
                 L = Utils.GetHighInt8(value);
                 H = Utils.GetLowInt8(value);
@@ -59,27 +58,31 @@ namespace EmuInvaders.Cpu
         public byte M
         {
             get => Memory.ReadInt8(HL);
-            set => Memory.WriteInt8(HL, value);
+            internal set => Memory.WriteInt8(HL, value);
         }
 
-        public CpuState(Memory memory)
+        internal readonly Dictionary<byte, Func<byte>> InputDevices = new Dictionary<byte, Func<byte>>();
+        internal readonly Dictionary<byte, Action<byte>> OutputDevices = new Dictionary<byte, Action<byte>>();
+
+
+        internal CpuState(Memory memory)
         {
             Memory = memory;
             Stack = new Stack(memory);
             Flags = new FlagsState();
         }
 
-        public byte GetImmediateInt8()
+        internal byte GetImmediateInt8()
         {
             return Memory.ReadInt8(PC + 1);
         }
 
-        public ushort GetImmediateInt16()
+        internal ushort GetImmediateInt16()
         {
             return Memory.ReadInt16(PC + 1);
         }
 
-        public byte ReadRegister(Register register)
+        internal byte ReadRegister(Register register)
         {
             switch (register)
             {
@@ -104,7 +107,7 @@ namespace EmuInvaders.Cpu
             }
         }
 
-        public ushort ReadRegisterPair(RegisterPair registerPair)
+        internal ushort ReadRegisterPair(RegisterPair registerPair)
         {
             switch (registerPair)
             {
@@ -121,7 +124,7 @@ namespace EmuInvaders.Cpu
             }
         }
 
-        public void WriteToRegister(Register register, byte value)
+        internal void WriteToRegister(Register register, byte value)
         {
             switch (register)
             {
@@ -154,7 +157,7 @@ namespace EmuInvaders.Cpu
             }
         }
 
-        public void WriteToRegisterPair(RegisterPair registerPair, ushort value)
+        internal void WriteToRegisterPair(RegisterPair registerPair, ushort value)
         {
             switch (registerPair)
             {

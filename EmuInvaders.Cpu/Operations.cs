@@ -129,7 +129,6 @@ namespace EmuInvaders.Cpu
             var result = value + 1;
             state.Flags.SetNonCarryFlags(result);
             state.Flags.SetAddAuxCarry(value, 1);
-            //state.Flags.SetFlags(value, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.AuxCarry);
             state.WriteToRegister(register, (byte)result);
             return register == Register.M ? 10 : 5;
         }
@@ -140,7 +139,6 @@ namespace EmuInvaders.Cpu
             var result = value - 1;
             state.Flags.SetNonCarryFlags(result);
             state.Flags.SetSubAuxCarry(value, 1);
-            //state.Flags.SetFlags(value, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.AuxCarry);
             state.WriteToRegister(register, (byte)result);
             return register == Register.M ? 10 : 5;
         }
@@ -419,7 +417,7 @@ namespace EmuInvaders.Cpu
         public static int RST(CpuState state, int rstNumber)
         {
             state.Stack.Push(state.PC);
-            state.PC = (ushort)(rstNumber * 8);
+            state.PC = (ushort)rstNumber;
             return 11;
         }
 
@@ -472,14 +470,24 @@ namespace EmuInvaders.Cpu
         public static int IN(CpuState cpuState)
         {
             var port = cpuState.GetImmediateInt8();
-            cpuState.A = cpuState.InputHandler?.ProcessInput(port) ?? 0;
+            if (cpuState.InputDevices.TryGetValue(port, out var inputDevice))
+            {
+                cpuState.A = inputDevice();
+            }
+            else
+            {
+                cpuState.A = 0;
+            }
             return 10;
         }
 
         public static int OUT(CpuState cpuState)
         {
             var port = cpuState.GetImmediateInt8();
-            cpuState.OutputHandler?.ProcessOutput(port, cpuState.A);
+            if (cpuState.OutputDevices.TryGetValue(port, out var outputDevice))
+            {
+                outputDevice(cpuState.A);
+            }
             return 10;
         }
 

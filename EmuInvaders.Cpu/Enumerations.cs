@@ -2,18 +2,18 @@
 
 namespace EmuInvaders.Cpu
 {
-    public enum Register
+    internal enum Register
     {
         A, B, C, D, E, H, L, M
     }
 
-    public enum RegisterPair
+    internal enum RegisterPair
     {
         BC, DE, HL, SP
     }
 
     [Flags]
-    public enum FlagOptions
+    internal enum FlagOptions
     {
         Zero = 0,
         Sign = 1,
