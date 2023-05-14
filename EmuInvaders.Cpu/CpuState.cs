@@ -14,7 +14,6 @@ namespace EmuInvaders.Cpu
         public IOutputHandler OutputHandler { get; set; }
         public bool InterruptsEnabled { get; set; } = false;
         public bool Halted { get; set; } = false;
-        public bool CpuTestMode { get; set; } = false;
         public string CpuDiagMessage { get; set; }
 
         public ushort PC { get; set; }

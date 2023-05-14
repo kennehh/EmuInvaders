@@ -12,8 +12,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="8080EX1.COM">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="8080EXER.COM">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="8080PRE.COM">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="cpudiag.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

@@ -7,6 +7,7 @@ namespace EmuInvaders.Cpu
 {
     internal static class Operations
     {
+
         public static int MOV(CpuState state, Register rLeft, Register rRight)
         {
             var value = state.ReadRegister(rRight);
@@ -126,7 +127,9 @@ namespace EmuInvaders.Cpu
         {
             var value = state.ReadRegister(register);
             var result = value + 1;
-            state.Flags.SetFlags(value, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.AuxCarry);
+            state.Flags.SetNonCarryFlags(result);
+            state.Flags.SetAddAuxCarry(value, 1);
+            //state.Flags.SetFlags(value, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.AuxCarry);
             state.WriteToRegister(register, (byte)result);
             return register == Register.M ? 10 : 5;
         }
@@ -135,7 +138,9 @@ namespace EmuInvaders.Cpu
         {
             var value = state.ReadRegister(register);
             var result = value - 1;
-            state.Flags.SetFlags(value, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.AuxCarry);
+            state.Flags.SetNonCarryFlags(result);
+            state.Flags.SetSubAuxCarry(value, 1);
+            //state.Flags.SetFlags(value, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.AuxCarry);
             state.WriteToRegister(register, (byte)result);
             return register == Register.M ? 10 : 5;
         }
@@ -169,11 +174,12 @@ namespace EmuInvaders.Cpu
             if (state.Flags.Carry || (state.A >> 4) > 9 || (state.A >> 4) >= 9 && (state.A & 0x0f) > 9)
             {
                 add |= 0x60;
-                //state.Flags.Carry = true;
+                state.Flags.Carry = true;
             }
 
             var result = state.A + add;
-            state.Flags.SetFlags(state.A, result, FlagOptions.Sign | FlagOptions.Zero | FlagOptions.Parity | FlagOptions.AuxCarry | FlagOptions.Carry);
+            state.Flags.SetNonCarryFlags(result);
+            //state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.Carry | FlagOptions.AuxCarry);
             state.A = (byte)result;
 
             return 4;
@@ -185,8 +191,17 @@ namespace EmuInvaders.Cpu
             if (withCarry && state.Flags.Carry)
             {
                 result += 1;
+                state.Flags.SetAddAuxCarryWithCarry(state.A, value);
             }
-            state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.Carry | FlagOptions.AuxCarry);
+            else
+            {
+                state.Flags.SetAddAuxCarry(state.A, value);
+            }
+
+            state.Flags.SetNonCarryFlags(result);
+            state.Flags.SetCarry(result);
+            
+            //state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.Carry | FlagOptions.AuxCarry);
             state.A = (byte)result;
             return isMemoryOperation ? 7 : 4;
         }
@@ -197,24 +212,43 @@ namespace EmuInvaders.Cpu
             if (withBorrow && state.Flags.Carry)
             {
                 result -= 1;
+                state.Flags.SetSubAuxCarryWithCarry(state.A, value);
             }
-            state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.Carry | FlagOptions.AuxCarry);
+            else
+            {
+                state.Flags.SetSubAuxCarry(state.A, value);
+            }
+
+            state.Flags.SetNonCarryFlags(result);
+            state.Flags.SetCarry(result);
+
+            //state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.Carry | FlagOptions.AuxCarry);
             state.A = (byte)result;
             return isMemoryOperation ? 7 : 4;
         }
 
         public static int ANA(CpuState state, Register register)
         {
-            var result = state.A & state.ReadRegister(register);
-            state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.CarryClear | FlagOptions.AuxCarry);
+            var value = state.ReadRegister(register);
+            var result = state.A & value;
+
+            state.Flags.SetNonCarryFlags(result);
+            state.Flags.AuxCarry = ((state.A | value) & 0x08) != 0; // special case on 8080 documented by intel p1-12
+            state.Flags.Carry = false;
+            //state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.CarryClear | FlagOptions.AuxCarry);
             state.A = (byte)result;
             return register == Register.M ? 7 : 4;
         }
 
         public static int ANI(CpuState state)
         {
+            var value = state.GetImmediateInt8();
             var result = state.A & state.GetImmediateInt8();
-            state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.CarryClear | FlagOptions.AuxCarryClear);
+
+            state.Flags.SetNonCarryFlags(result);
+            state.Flags.AuxCarry = false;
+            state.Flags.Carry = false;
+            //state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.CarryClear | FlagOptions.AuxCarryClear);
             state.A = (byte)result;
             return 7;
         }
@@ -222,7 +256,10 @@ namespace EmuInvaders.Cpu
         public static int XRA(CpuState state, Register register)
         {
             var result = state.A ^ state.ReadRegister(register);
-            state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.CarryClear | FlagOptions.AuxCarryClear);
+            state.Flags.AuxCarry = false;
+            state.Flags.Carry = false;
+            state.Flags.SetNonCarryFlags(result);
+            //state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.CarryClear | FlagOptions.AuxCarryClear);
             state.A = (byte)result;
             return register == Register.M ? 7 : 4;
         }
@@ -230,7 +267,10 @@ namespace EmuInvaders.Cpu
         public static int XRI(CpuState state)
         {
             var result = state.A ^ state.GetImmediateInt8();
-            state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.CarryClear | FlagOptions.AuxCarryClear);
+            state.Flags.AuxCarry = false;
+            state.Flags.Carry = false;
+            state.Flags.SetNonCarryFlags(result);
+            //state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.CarryClear | FlagOptions.AuxCarryClear);
             state.A = (byte)result;
             return 7;
         }
@@ -238,7 +278,10 @@ namespace EmuInvaders.Cpu
         public static int ORA(CpuState state, Register register)
         {
             var result = state.A | state.ReadRegister(register);
-            state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.CarryClear | FlagOptions.AuxCarryClear);
+            state.Flags.AuxCarry = false;
+            state.Flags.Carry = false;
+            state.Flags.SetNonCarryFlags(result);
+            //state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.CarryClear | FlagOptions.AuxCarryClear);
             state.A = (byte)result;
             return register == Register.M ? 7 : 4;
         }
@@ -246,22 +289,33 @@ namespace EmuInvaders.Cpu
         public static int ORI(CpuState state)
         {
             var result = state.A | state.GetImmediateInt8();
-            state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.CarryClear | FlagOptions.AuxCarryClear);
+            state.Flags.AuxCarry = false;
+            state.Flags.Carry = false;
+            state.Flags.SetNonCarryFlags(result);
+            //state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.CarryClear | FlagOptions.AuxCarryClear);
             state.A = (byte)result;
             return 7;
         }
 
         public static int CMP(CpuState state, Register register)
         {
-            var result = state.A - state.ReadRegister(register);
-            state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.Carry | FlagOptions.AuxCarry);
+            var value = state.ReadRegister(register);
+            var result = state.A - value;
+            state.Flags.SetSubAuxCarry(state.A, value);
+            state.Flags.SetNonCarryFlags(result);
+            state.Flags.SetCarry(result);
+            //state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.Carry | FlagOptions.AuxCarry);
             return register == Register.M ? 7 : 4;
         }
 
         public static int CPI(CpuState state)
         {
-            var result = state.A - state.GetImmediateInt8();
-            state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.Carry | FlagOptions.AuxCarry);
+            var value = state.GetImmediateInt8();
+            var result = state.A - value;
+            state.Flags.SetSubAuxCarry(state.A, value);
+            state.Flags.SetNonCarryFlags(result);
+            state.Flags.SetCarry(result);
+            //state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.Carry | FlagOptions.AuxCarry);
             return 7;
         }
 
@@ -327,58 +381,7 @@ namespace EmuInvaders.Cpu
             return 10;
         }
 
-        public static int CALL(CpuState state)
-        {
-            if (state.CpuTestMode)
-            {
-                var value = state.GetImmediateInt16();
-
-                if (value == 5)
-                {
-                    if (state.C == 9)
-                    {
-                        var offset = state.DE + 3;
-                        var data = state.Memory.GetSubsetOfMemory(offset, state.Memory.Length - offset).ToArray();
-                        var message = string.Empty;
-
-                        using (var stream = new MemoryStream(data))
-                        using (var reader = new StreamReader(stream))
-                        {
-                            char c = (char)reader.Read();
-                            while (c != '$')
-                            {
-                                message += c;
-                                c = (char)reader.Read();
-                            };
-                        }
-
-                        state.CpuDiagMessage = message;
-                        Console.WriteLine(message);
-                    }
-                    else if (state.C == 2)
-                    {
-                        Console.WriteLine((char)state.E);
-                    }
-                    //state.Halted = true;
-                    return 17;
-                }
-                else if (value == 0)
-                {
-                    state.Halted = true;
-                }
-                else
-                {
-                    return CALL(state, true);
-                }
-            }
-            else
-            {
-                return CALL(state, true);
-            }
-            return 17;
-        }
-
-        public static int CALL(CpuState state, bool condition)
+        public static int CALL(CpuState state, bool condition = true)
         {
             var pc = state.GetImmediateInt16();
 
@@ -434,7 +437,7 @@ namespace EmuInvaders.Cpu
 
         public static int PUSH_PSW(CpuState cpuState)
         {
-            cpuState.Stack.Push(cpuState.A, cpuState.Flags.PSW);
+            cpuState.Stack.Push(cpuState.Flags.PSW, cpuState.A);
             return 11;
         }
 
@@ -447,8 +450,8 @@ namespace EmuInvaders.Cpu
         public static int POP_PSW(CpuState cpuState)
         {
             var value = cpuState.Stack.Pop();
-            cpuState.A = Utils.GetHighInt8(value);
-            cpuState.Flags.PSW = Utils.GetLowInt8(value);
+            cpuState.A = Utils.GetLowInt8(value);
+            cpuState.Flags.PSW = Utils.GetHighInt8(value);
             return 10;
         }
 

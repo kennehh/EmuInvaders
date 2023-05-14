@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Reflection.Emit;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,7 +35,7 @@ namespace EmuInvaders.Cpu
             [0x0f] = new Opcode("RRC",       1,   state => Operations.RRC(state)),
             [0x10] = new Opcode("NOP",       1,   state => Operations.NOP(state)),
             [0x11] = new Opcode("LXI D",     3,   state => Operations.LXI(state, RegisterPair.DE)),
-            [0x12] = new Opcode("STAX D",    1,   state => Operations.STAX(state, RegisterPair.BC)),
+            [0x12] = new Opcode("STAX D",    1,   state => Operations.STAX(state, RegisterPair.DE)),
             [0x13] = new Opcode("INX D",     1,   state => Operations.INX(state, RegisterPair.DE)),
             [0x14] = new Opcode("INR D",     1,   state => Operations.INR(state, Register.D)),
             [0x15] = new Opcode("DCR D",     1,   state => Operations.DCR(state, Register.D)),
@@ -240,35 +241,35 @@ namespace EmuInvaders.Cpu
             [0xdd] = new Opcode("NOP",       1,   state => Operations.NOP(state)),
             [0xde] = new Opcode("SBI",       2,   state => Operations.SBI(state)),
             [0xdf] = new Opcode("RST 3",     1,   state => Operations.RST(state, 3)),
-            [0xe0] = new Opcode("RPO",       1,   state => Operations.RET(state, !state.Flags.ParityEven)),
+            [0xe0] = new Opcode("RPO",       1,   state => Operations.RET(state, !state.Flags.Parity)),
             [0xe1] = new Opcode("POP H",     1,   state => Operations.POP(state, RegisterPair.HL)),
-            [0xe2] = new Opcode("JPO adr",   3,   state => Operations.JMP(state, !state.Flags.ParityEven)),
+            [0xe2] = new Opcode("JPO adr",   3,   state => Operations.JMP(state, !state.Flags.Parity)),
             [0xe3] = new Opcode("XTHL",      1,   state => Operations.XTHL(state)),
-            [0xe4] = new Opcode("CPO adr",   3,   state => Operations.CALL(state, !state.Flags.ParityEven)),
+            [0xe4] = new Opcode("CPO adr",   3,   state => Operations.CALL(state, !state.Flags.Parity)),
             [0xe5] = new Opcode("PUSH H",    1,   state => Operations.PUSH(state, RegisterPair.HL)),
             [0xe6] = new Opcode("ANI",       2,   state => Operations.ANI(state)),
             [0xe7] = new Opcode("RST 4",     1,   state => Operations.RST(state, 4)),
-            [0xe8] = new Opcode("RPE",       1,   state => Operations.RET(state, state.Flags.ParityEven)),
+            [0xe8] = new Opcode("RPE",       1,   state => Operations.RET(state, state.Flags.Parity)),
             [0xe9] = new Opcode("PCHL",      1,   state => Operations.PCHL(state)),
-            [0xea] = new Opcode("JPE adr",   3,   state => Operations.JMP(state, state.Flags.ParityEven)),
+            [0xea] = new Opcode("JPE adr",   3,   state => Operations.JMP(state, state.Flags.Parity)),
             [0xeb] = new Opcode("XCHG",      1,   state => Operations.XCHG(state)),
-            [0xec] = new Opcode("CPE adr",   3,   state => Operations.CALL(state, state.Flags.ParityEven)),
+            [0xec] = new Opcode("CPE adr",   3,   state => Operations.CALL(state, state.Flags.Parity)),
             [0xed] = new Opcode("NOP",       1,   state => Operations.NOP(state)),
             [0xee] = new Opcode("XRI",       2,   state => Operations.XRI(state)),
             [0xef] = new Opcode("RST 5",     1,   state => Operations.RST(state, 5)),
-            [0xf0] = new Opcode("RP",        1,   state => Operations.RET(state, !state.Flags.SignMinus)),
-            [0xf1] = new Opcode("POP PS",    1,   state => Operations.POP_PSW(state)),
-            [0xf2] = new Opcode("JP adr",    3,   state => Operations.JMP(state, !state.Flags.SignMinus)),
+            [0xf0] = new Opcode("RP",        1,   state => Operations.RET(state, !state.Flags.Sign)),
+            [0xf1] = new Opcode("POP PSW",    1,   state => Operations.POP_PSW(state)),
+            [0xf2] = new Opcode("JP adr",    3,   state => Operations.JMP(state, !state.Flags.Sign)),
             [0xf3] = new Opcode("DI",        1,   state => Operations.DI(state)),
-            [0xf4] = new Opcode("CP adr",    3,   state => Operations.CALL(state, !state.Flags.SignMinus)),
+            [0xf4] = new Opcode("CP adr",    3,   state => Operations.CALL(state, !state.Flags.Sign)),
             [0xf5] = new Opcode("PUSH PSW",  1,   state => Operations.PUSH_PSW(state)),
             [0xf6] = new Opcode("ORI",       2,   state => Operations.ORI(state)),
             [0xf7] = new Opcode("RST 6",     1,   state => Operations.RST(state, 6)),
-            [0xf8] = new Opcode("RM",        1,   state => Operations.RET(state, state.Flags.SignMinus)),
+            [0xf8] = new Opcode("RM",        1,   state => Operations.RET(state, state.Flags.Sign)),
             [0xf9] = new Opcode("SPHL",      1,   state => Operations.SPHL(state)),
-            [0xfa] = new Opcode("JM adr",    3,   state => Operations.JMP(state, state.Flags.SignMinus)),
+            [0xfa] = new Opcode("JM adr",    3,   state => Operations.JMP(state, state.Flags.Sign)),
             [0xfb] = new Opcode("EI",        1,   state => Operations.EI(state)),
-            [0xfc] = new Opcode("CM adr",    3,   state => Operations.CALL(state, state.Flags.SignMinus)),
+            [0xfc] = new Opcode("CM adr",    3,   state => Operations.CALL(state, state.Flags.Sign)),
             [0xfd] = new Opcode("NOP",       1,   state => Operations.NOP(state)),
             [0xfe] = new Opcode("CPI",       2,   state => Operations.CPI(state)),
             [0xff] = new Opcode("RST 7",     1,   state => Operations.RST(state, 7))
@@ -290,56 +291,27 @@ namespace EmuInvaders.Cpu
             State.Memory.Load(rom, 0);
         }
 
-        public void LoadCpuDiagRom(string path)
-        {
-            State.CpuTestMode = true;
-
-            var rom = File.ReadAllBytes(path);
-            var temp = new byte[rom.Length + 0x100];
-            rom.CopyTo(temp, 0x100);
-
-            //Fix the first instruction to be JMP 0x100    
-            temp[0] = 0xc3;
-            temp[1] = 0;
-            temp[2] = 0x01;
-
-            //Fix the stack pointer from 0x6ad to 0x7ad    
-            // this 0x06 byte 112 in the code, which is    
-            // byte 112 + 0x100 = 368 in memory    
-            temp[368] = 0x7;
-
-            //Skip DAA test    
-            //temp[0x59c] = 0xc3; //JMP    
-            //temp[0x59d] = 0xc2;
-            //temp[0x59e] = 0x05;
-
-            State.Memory.Load(temp, 0);
-        }
-
         public void LoadCpuTestRom(string path)
         {
-            State.CpuTestMode = true;
+            using (var file = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                var rom = new byte[file.Length + 0x100];
+                file.Read(rom, 0x100, (int)file.Length);
 
-            var rom = File.ReadAllBytes(path);
-            var temp = new byte[rom.Length + 0x100];
-            rom.CopyTo(temp, 0x100);
+                // All test binaries start at 0x0100.
+                State.PC = 0x0100;
 
-            //Fix the first instruction to be JMP 0x100    
-            temp[0] = 0xc3;
-            temp[1] = 0;
-            temp[2] = 0x01;
+                // inject "out 0,a" at 0x0000 (signal to stop the test)
+                rom[0x0000] = 0xD3;
+                rom[0x0001] = 0x00;
 
-            //Fix the stack pointer from 0x6ad to 0x7ad    
-            // this 0x06 byte 112 in the code, which is    
-            // byte 112 + 0x100 = 368 in memory    
-            //temp[368] = 0x7;
+                // inject "out 1,a" at 0x0005 (signal to output some characters)
+                rom[0x0005] = 0xD3;
+                rom[0x0006] = 0x01;
+                rom[0x0007] = 0xC9;
 
-            ////Skip DAA test    
-            //temp[0x59c] = 0xc3; //JMP    
-            //temp[0x59d] = 0xc2;
-            //temp[0x59e] = 0x05;
-
-            State.Memory.Load(temp, 0);
+                State.Memory.Load(rom, 0);
+            }
         }
 
         public int Step()
@@ -349,13 +321,10 @@ namespace EmuInvaders.Cpu
 
             if (opcodes.TryGetValue(code, out var opcode))
             {
-                //if (State.CpuDiagMode)
-                //{
-                //    Console.WriteLine($"{State.PC:x4}\t{opcode.Instruction}\t(0x{code:x2})");
-                //}
-                //Console.WriteLine($"{State.PC:x4}\t{opcode.Instruction}\t(0x{code:x2})");
                 //Thread.Sleep(2);
                 var cycles = opcode.Execute(State);
+                //Console.Write($"{State.PC:x4}\t{opcode.Instruction}\t(0x{code:x2})\tA:{State.A:x2},B:{State.B:x2},C:{State.C:x2},D:{State.D:x2},E:{State.E:x2},H:{State.H},L:{State.L},M:{State.M:x2},SP:{State.Stack.SP:x4},B:{State.BC:x4},DE:{State.DE:x4},HL:{State.HL:x4}");
+                //Console.WriteLine($" - Flags: Z:{State.Flags.Zero.ToBit()},S:{State.Flags.Sign.ToBit()},P:{State.Flags.Parity.ToBit()},C:{State.Flags.Carry.ToBit()},AC:{State.Flags.AuxCarry.ToBit()}");
                 if (State.PC == oldPC)
                 {
                     State.PC += opcode.Size;

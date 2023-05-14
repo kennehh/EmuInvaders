@@ -64,7 +64,7 @@ namespace EmuInvaders.Cpu
             memory[address + 1] = Utils.GetLowInt8(value);
         }
 
-        internal ReadOnlyMemory<byte> GetSubsetOfMemory(int start, int end)
+        public ReadOnlyMemory<byte> GetSubsetOfMemory(int start, int end)
         {
             return new ReadOnlyMemory<byte>(memory, start, end);
         }

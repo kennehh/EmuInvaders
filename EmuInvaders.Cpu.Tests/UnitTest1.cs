@@ -11,7 +11,7 @@ namespace EmuInvaders.Cpu.Tests
         public void CpuDiagTest()
         {
             var cpu = new Intel8080();
-            cpu.LoadCpuDiagRom("../Roms/cpudiag.bin");
+            cpu.LoadCpuDiagRom("cpudiag.bin");
 
             var start = DateTime.Now;
             while (!cpu.State.Halted && string.IsNullOrEmpty(cpu.State.CpuDiagMessage) && (DateTime.Now - start).TotalSeconds < 10)
@@ -19,7 +19,7 @@ namespace EmuInvaders.Cpu.Tests
                 cpu.Step();
             }
 
-            Assert.That(cpu.State.CpuDiagMessage == "CPU IS OPERATIONAL");
+            Assert.That(cpu.State.CpuDiagMessage.Trim() == "CPU IS OPERATIONAL");
         }
     }
 }
