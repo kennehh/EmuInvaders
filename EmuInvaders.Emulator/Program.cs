@@ -11,6 +11,9 @@ namespace EmuInvaders.Emulator
     {
         static void Main(string[] args)
         {
+            int width = 224;
+            int height = 256;
+
             var machine = new SpaceInvadersMachine();
             machine.Initialise();
 
@@ -19,7 +22,7 @@ namespace EmuInvaders.Emulator
                 throw new SDLException("SDL could not initialise");
             }
 
-            var window = SDL_CreateWindow("Space Invaders Yo", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 224, 256, SDL_WindowFlags.SDL_WINDOW_SHOWN);
+            var window = SDL_CreateWindow("Space Invaders Yo", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width * 3, height * 3, SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
             if (window == nint.Zero)
             {
                 throw new SDLException("SDL could not create the window");
@@ -32,6 +35,7 @@ namespace EmuInvaders.Emulator
                 throw new SDLException("SDL could not create the renderer");
             }
 
+            SDL_RenderSetLogicalSize(renderer, width, height);
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
             SDL_RenderClear(renderer);
             SDL_RenderPresent(renderer);
@@ -44,9 +48,9 @@ namespace EmuInvaders.Emulator
                 var bits = new BitArray(e.FrameBuffer);
                 var i = 0;
 
-                for (var x = 0; x < 224; x++)
+                for (var x = 0; x < width; x++)
                 {
-                    for (var y = 255; y >= 0; y--)
+                    for (var y = height - 1; y >= 0; y--)
                     {
                         if (bits[i++])
                         {
@@ -99,6 +103,10 @@ namespace EmuInvaders.Emulator
                                 case SDL_WindowEventID.SDL_WINDOWEVENT_CLOSE:
                                     quit = true;
                                     break;
+                                case SDL_WindowEventID.SDL_WINDOWEVENT_RESIZED:
+                                    SDL_SetWindowSize(window, e.window.data1, e.window.data2);
+                                    SDL_RenderPresent(renderer);
+                                    break;
                             }
                             break;
                         case SDL_EventType.SDL_KEYDOWN:
@@ -148,11 +156,12 @@ namespace EmuInvaders.Emulator
                 }
             }
 
+            machine.Stop();
+            emulatorThread.Join();
+
             SDL_DestroyRenderer(renderer);
             SDL_DestroyWindow(window);
             SDL_Quit();
-
-            machine.Stop();
         }
     }
 }
