@@ -23,12 +23,22 @@ namespace EmuInvaders.Emulator
 
         private SpaceInvadersMachine machine = null;
         private Thread emulatorThread = null;
+
         private bool quit = false;
+        private int windowWidth = InitialWindowWidth;
+        private int windowHeight = InitialWindowHeight;
+        private bool renderNow = false;
+        private bool resizeNow = false;
+        private byte[] currentFrameBuffer = null;
 
         public Window()
         {
             machine = new SpaceInvadersMachine();
-            machine.OnRender += OnRender;
+            machine.OnRender += (source, args) =>
+            {
+                currentFrameBuffer = args.FrameBuffer;
+                renderNow = true;
+            };
         }
 
         public void Open() 
@@ -42,7 +52,7 @@ namespace EmuInvaders.Emulator
                 throw new SDLException("SDL could not initialise");
             }
 
-            window = SDL_CreateWindow("Space Invaders Yo", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, InitialWindowWidth, InitialWindowHeight, SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
+            window = SDL_CreateWindow("Space Invaders Yo", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
             if (window == nint.Zero)
             {
                 throw new SDLException("SDL could not create the window");
@@ -67,21 +77,27 @@ namespace EmuInvaders.Emulator
         {
             while (!quit)
             {
-                while (!quit && SDL_PollEvent(out var e) > 0)
+                PollForEvents();
+                Render();
+            }
+        }
+
+        private void PollForEvents()
+        {
+            while (SDL_PollEvent(out var e) > 0)
+            {
+                switch (e.type)
                 {
-                    switch (e.type)
-                    {
-                        case SDL_EventType.SDL_QUIT:
-                            quit = true;
-                            break;
-                        case SDL_EventType.SDL_WINDOWEVENT:
-                            HandleWindowEvent(e.window);
-                            break;
-                        case SDL_EventType.SDL_KEYDOWN:
-                        case SDL_EventType.SDL_KEYUP:
-                            HandleKey(e.type, e.key.keysym.sym);
-                            break;
-                    }
+                    case SDL_EventType.SDL_QUIT:
+                        quit = true;
+                        break;
+                    case SDL_EventType.SDL_WINDOWEVENT:
+                        HandleWindowEvent(e.window);
+                        break;
+                    case SDL_EventType.SDL_KEYDOWN:
+                    case SDL_EventType.SDL_KEYUP:
+                        HandleKey(e.type, e.key.keysym.sym);
+                        break;
                 }
             }
         }
@@ -94,8 +110,12 @@ namespace EmuInvaders.Emulator
                     quit = true;
                     break;
                 case SDL_WindowEventID.SDL_WINDOWEVENT_RESIZED:
-                    SDL_SetWindowSize(window, windowEvent.data1, windowEvent.data2);
-                    SDL_RenderPresent(renderer);
+                    windowWidth = windowEvent.data1;
+                    windowHeight = windowEvent.data2;
+                    resizeNow = true;
+                    renderNow = true;
+                    //SDL_SetWindowSize(window, windowWidth, windowHeight);
+                    //SDL_RenderPresent(renderer);
                     break;
             }
         }
@@ -142,12 +162,17 @@ namespace EmuInvaders.Emulator
             }
         }
 
-        private void OnRender(object source, RenderEventArgs e)
+        private void Render()
         {
+            if (!renderNow)
+            {
+                return;
+            }
+
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
             SDL_RenderClear(renderer);
 
-            var bits = new BitArray(e.FrameBuffer);
+            var bits = new BitArray(currentFrameBuffer);
             var i = 0;
 
             for (var x = 0; x < RenderWidth; x++)
@@ -177,7 +202,14 @@ namespace EmuInvaders.Emulator
                 }
             }
 
+            if (resizeNow)
+            {
+                SDL_SetWindowSize(window, windowWidth, windowHeight);
+                resizeNow = false;
+            }
+
             SDL_RenderPresent(renderer);
+            renderNow = false;
         }
 
         public void Dispose()
