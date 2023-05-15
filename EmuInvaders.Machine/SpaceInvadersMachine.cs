@@ -9,7 +9,7 @@ namespace EmuInvaders.Machine
 {
     public class SpaceInvadersMachine
     {
-        public event EventHandler<RefreshDisplayEventArgs> Render;
+        public event EventHandler<RenderEventArgs> OnRender;
         public Keyboard Keyboard { get; } = new Keyboard();
 
         private readonly Intel8080 cpu = new Intel8080();
@@ -54,7 +54,7 @@ namespace EmuInvaders.Machine
 
                 if (renderNow)
                 {
-                    Render(this, new RefreshDisplayEventArgs(cpu.State.Memory.FrameBuffer.ToArray()));
+                    OnRender(this, new RenderEventArgs(cpu.State.Memory.FrameBuffer.ToArray()));
                     renderNow = false;
                 }
                 else
@@ -135,11 +135,11 @@ namespace EmuInvaders.Machine
         }
     }
 
-    public class RefreshDisplayEventArgs : EventArgs
+    public class RenderEventArgs : EventArgs
     {
         public byte[] FrameBuffer { get; }
 
-        public RefreshDisplayEventArgs(byte[] frameBuffer)
+        public RenderEventArgs(byte[] frameBuffer)
         {
             FrameBuffer = frameBuffer;
         }

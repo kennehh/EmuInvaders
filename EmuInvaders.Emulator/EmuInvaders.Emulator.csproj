@@ -16,10 +16,4 @@
     <ProjectReference Include="..\EmuInvaders.Machine\EmuInvaders.Machine.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Untitled.bmp">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>
