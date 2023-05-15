@@ -35,12 +35,6 @@ namespace EmuInvaders.Cpu
             Buffer.BlockCopy(data, srcOffset, memory, dstOffset, length);
         }
 
-        internal void SetReadOnly(ushort start, ushort end)
-        {
-            readOnlyStart = start;
-            readOnlyEnd = end;
-        }
-
         internal byte ReadInt8(int address)
         {
             return memory[address];
@@ -67,14 +61,6 @@ namespace EmuInvaders.Cpu
         public ReadOnlyMemory<byte> GetSubsetOfMemory(int start, int end)
         {
             return new ReadOnlyMemory<byte>(memory, start, end);
-        }
-
-        private void CheckIfReadOnly(int address)
-        {
-            if (address >= readOnlyStart && address <= readOnlyEnd)
-            {
-                throw new InvalidOperationException("Cannot write at this address - it is set to read only");
-            }
         }
     }
 }

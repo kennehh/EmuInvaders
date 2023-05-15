@@ -1,7 +1,9 @@
 ﻿using EmuInvaders.Machine;
+using SDL2;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection.PortableExecutable;
 using System.Text;
@@ -27,18 +29,13 @@ namespace EmuInvaders.Emulator
         private bool quit = false;
         private int windowWidth = InitialWindowWidth;
         private int windowHeight = InitialWindowHeight;
-        private bool renderNow = false;
-        private bool resizeNow = false;
-        private byte[] currentFrameBuffer = null;
+
+        private Stopwatch timer = new Stopwatch();
+        private const int TargetHz = 60;
 
         public Window()
         {
             machine = new SpaceInvadersMachine();
-            machine.OnRender += (source, args) =>
-            {
-                currentFrameBuffer = args.FrameBuffer;
-                renderNow = true;
-            };
         }
 
         public void Open() 
@@ -77,8 +74,18 @@ namespace EmuInvaders.Emulator
         {
             while (!quit)
             {
+                timer.Start();
+
                 PollForEvents();
                 Render();
+
+                if (timer.Elapsed.TotalMilliseconds < (1000 / TargetHz))
+                {
+                    var delay = (1000 / TargetHz) - timer.Elapsed.TotalMilliseconds;
+                    SDL_Delay((uint)delay);
+                }
+
+                timer.Reset();
             }
         }
 
@@ -109,20 +116,12 @@ namespace EmuInvaders.Emulator
                 case SDL_WindowEventID.SDL_WINDOWEVENT_CLOSE:
                     quit = true;
                     break;
-                case SDL_WindowEventID.SDL_WINDOWEVENT_RESIZED:
-                    windowWidth = windowEvent.data1;
-                    windowHeight = windowEvent.data2;
-                    resizeNow = true;
-                    renderNow = true;
-                    //SDL_SetWindowSize(window, windowWidth, windowHeight);
-                    //SDL_RenderPresent(renderer);
-                    break;
             }
         }
 
         private void HandleKey(SDL_EventType keyEvent, SDL_Keycode keycode)
         {
-            if (keyEvent != SDL_EventType.SDL_KEYDOWN && keyEvent == SDL_EventType.SDL_KEYDOWN)
+            if (keyEvent != SDL_EventType.SDL_KEYDOWN && keyEvent != SDL_EventType.SDL_KEYUP)
             {
                 return;
             }
@@ -164,15 +163,10 @@ namespace EmuInvaders.Emulator
 
         private void Render()
         {
-            if (!renderNow)
-            {
-                return;
-            }
-
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
             SDL_RenderClear(renderer);
 
-            var bits = new BitArray(currentFrameBuffer);
+            var bits = new BitArray(machine.GetFrameBuffer());
             var i = 0;
 
             for (var x = 0; x < RenderWidth; x++)
@@ -181,7 +175,7 @@ namespace EmuInvaders.Emulator
                 {
                     if (bits[i++])
                     {
-                        if (y >= 182 && y <= 223)
+                        if (y >= 184 && y <= 223 || y >= 238 && y <= 240 || y >= 238 && x >= 20 && x <= 60)
                         {
                             // Green - player and shields
                             SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
@@ -202,14 +196,7 @@ namespace EmuInvaders.Emulator
                 }
             }
 
-            if (resizeNow)
-            {
-                SDL_SetWindowSize(window, windowWidth, windowHeight);
-                resizeNow = false;
-            }
-
             SDL_RenderPresent(renderer);
-            renderNow = false;
         }
 
         public void Dispose()

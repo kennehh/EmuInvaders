@@ -9,7 +9,6 @@ namespace EmuInvaders.Machine
 {
     public class SpaceInvadersMachine
     {
-        public event EventHandler<RenderEventArgs> OnRender;
         public Keyboard Keyboard { get; } = new Keyboard();
 
         private readonly Intel8080 cpu = new Intel8080();
@@ -17,6 +16,12 @@ namespace EmuInvaders.Machine
         private readonly Stopwatch timer = new Stopwatch();
         private int nextInterrupt = 0x08;
         private bool stop = false;
+
+        private const int HardwareHz = 60;
+        private const int CpuSpeedHz = 2000000; // 2MHz
+        private const int CpuTicksPerMillisecond = CpuSpeedHz / 1000; // 2MHz
+        private const int ExpectedMillisecondsPerInterrupt = 1000 / (HardwareHz * 2);
+        private const int ExpectedCpuCyclesPerInterrupt = ExpectedMillisecondsPerInterrupt * CpuTicksPerMillisecond;
 
         public void Initialise()
         {
@@ -29,7 +34,6 @@ namespace EmuInvaders.Machine
         public void Run()
         {
             int cycles = 0;
-            var renderNow = true;
 
             while (!stop)
             {
@@ -40,34 +44,26 @@ namespace EmuInvaders.Machine
                     GenerateInterrupt();
                 }
 
-                while (cycles < 16667)
+                while (cycles < ExpectedCpuCyclesPerInterrupt)
                 {
                     cycles += cpu.Step();
                 }
 
                 var timeElapsed = timer.ElapsedMilliseconds;
-                if (timeElapsed < 1000 / 120)
+                if (timeElapsed < ExpectedMillisecondsPerInterrupt)
                 {
-                    var sleep = 1000 / 120 - timeElapsed;
+                    var sleep = ExpectedMillisecondsPerInterrupt - timeElapsed;
                     Thread.Sleep((int)sleep);
                 }
 
-                if (renderNow)
-                {
-                    OnRender(this, new RenderEventArgs(cpu.State.Memory.FrameBuffer.ToArray()));
-                    renderNow = false;
-                }
-                else
-                {
-                    renderNow = true;
-                }
-
-                cycles -= 16667;
+                cycles -= ExpectedCpuCyclesPerInterrupt;
                 timer.Reset();
             }
         }
 
         public void Stop() => stop = true;
+
+        public byte[] GetFrameBuffer() => cpu.State.Memory.FrameBuffer.ToArray();
 
         private void GenerateInterrupt()
         {
@@ -132,16 +128,6 @@ namespace EmuInvaders.Machine
             cpu.LoadRom("rom/invaders.g", 0x0800);
             cpu.LoadRom("rom/invaders.f", 0x1000);
             cpu.LoadRom("rom/invaders.e", 0x1800);
-        }
-    }
-
-    public class RenderEventArgs : EventArgs
-    {
-        public byte[] FrameBuffer { get; }
-
-        public RenderEventArgs(byte[] frameBuffer)
-        {
-            FrameBuffer = frameBuffer;
         }
     }
 }

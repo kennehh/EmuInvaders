@@ -29,7 +29,8 @@ internal class Program
             cpu.Step();
         }
         stopwatch.Stop();
-        //Console.WriteLine(stopwatch.ElapsedMilliseconds);
+        Console.WriteLine();
+        Console.WriteLine(stopwatch.ElapsedMilliseconds);
     }
 
     private static void PrintMessage(byte value)
