@@ -176,6 +176,7 @@ namespace EmuInvaders.Cpu
             }
 
             var result = state.A + add;
+            state.Flags.SetAddAuxCarry(state.A, (byte)add);
             state.Flags.SetNonCarryFlags(result);
             state.A = (byte)result;
 

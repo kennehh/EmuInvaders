@@ -13,7 +13,6 @@ namespace EmuInvaders.Cpu
 
         public bool InterruptsEnabled { get; internal set; } = false;
         public bool Halted { get; internal set; } = false;
-        public string CpuDiagMessage { get; internal set; }
 
         public ushort PC { get; internal set; }
 
