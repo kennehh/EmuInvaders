@@ -231,14 +231,8 @@ namespace EmuInvaders.Emulator
                 }
                 else
                 {
-                    if (soundType == SoundType.UfoStart)
-                    {
-                        result = SDL_mixer.Mix_PlayChannel(GetAudioChannel(soundType), soundData[soundType], -1);
-                    }
-                    else
-                    {
-                        result = SDL_mixer.Mix_PlayChannel(GetAudioChannel(soundType), soundData[soundType], 0);
-                    }
+                    var repeat = soundType == SoundType.UfoStart ? -1 : 0;
+                    result = SDL_mixer.Mix_PlayChannel(GetAudioChannel(soundType), soundData[soundType], repeat);
                 }
 
                 if (result == -1)
