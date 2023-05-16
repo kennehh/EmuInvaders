@@ -24,7 +24,7 @@ internal class Program
 
         var stopwatch = new Stopwatch();
         stopwatch.Start();
-        while (!stop && !cpu.State.Halted)
+        while (!stop)
         {
             cpu.Step();
         }
