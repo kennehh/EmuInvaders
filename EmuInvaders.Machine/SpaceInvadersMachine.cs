@@ -1,12 +1,14 @@
 ﻿using EmuInvaders.Cpu;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 
 namespace EmuInvaders.Machine
 {
     public class SpaceInvadersMachine
     {
-        public Keyboard Keyboard { get; } = new Keyboard();
+        public ControlPanel Keyboard { get; } = new ControlPanel();
+        public Audio Audio { get; } = new Audio();
 
         private const int HardwareHz = 60;
         private const int CpuSpeedHz = 2000000; // 2MHz
@@ -16,15 +18,16 @@ namespace EmuInvaders.Machine
 
         private readonly Intel8080 cpu = new Intel8080();
         private readonly ShiftRegister shiftRegister = new ShiftRegister();
+
         private readonly Stopwatch timer = new Stopwatch();
         private int nextInterrupt = 0x08;
         private bool stop = false;
 
-        public void Initialise()
+        public void Initialise(string romFolder = "rom")
         {
             InitialiseInputs();
             InitialiseOutputs();
-            LoadRom();
+            LoadRom(romFolder);
             cpu.State.Memory.SetFrameBufferRegion(0x2400, 0x4000);
         }
 
@@ -81,15 +84,7 @@ namespace EmuInvaders.Machine
             //  bit 7 ? tied to demux port 7 ?
             cpu.ConnectInputDevice(0, () => 0b0001110);
 
-            //  Port 1
-            //  bit 0 = CREDIT (1 if deposit)
-            //  bit 1 = 2P start (1 if pressed)
-            //  bit 2 = 1P start (1 if pressed)
-            //  bit 3 = Always 1
-            //  bit 4 = 1P shot (1 if pressed)
-            //  bit 5 = 1P left (1 if pressed)
-            //  bit 6 = 1P right (1 if pressed)
-            //  bit 7 = Not connected
+            // Input Controls
             cpu.ConnectInputDevice(1, () => Keyboard.InputValue);
 
             //  Port 2
@@ -112,16 +107,22 @@ namespace EmuInvaders.Machine
             // Shift amount
             cpu.ConnectOutputDevice(2, shiftRegister.WriteOffset);
 
+            // Sound 1
+            cpu.ConnectOutputDevice(3, Audio.WritePort3);
+
             // Shift data
             cpu.ConnectOutputDevice(4, shiftRegister.Write);
+
+            // Sound 2
+            cpu.ConnectOutputDevice(5, Audio.WritePort5);
         }
 
-        private void LoadRom()
+        private void LoadRom(string romFolder)
         {
-            cpu.LoadRom("rom/invaders.h", 0x0000);
-            cpu.LoadRom("rom/invaders.g", 0x0800);
-            cpu.LoadRom("rom/invaders.f", 0x1000);
-            cpu.LoadRom("rom/invaders.e", 0x1800);
+            cpu.LoadRom(Path.Combine(romFolder, "invaders.h"), 0x0000);
+            cpu.LoadRom(Path.Combine(romFolder, "invaders.g"), 0x0800);
+            cpu.LoadRom(Path.Combine(romFolder, "invaders.f"), 0x1000);
+            cpu.LoadRom(Path.Combine(romFolder, "invaders.e"), 0x1800);
         }
     }
 }

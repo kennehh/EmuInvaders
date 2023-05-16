@@ -1,6 +1,8 @@
 ﻿using EmuInvaders.Machine;
+using SDL2;
 using System.Collections;
 using System.Diagnostics;
+using System.Reflection;
 using static SDL2.SDL;
 
 namespace EmuInvaders.Emulator
@@ -25,6 +27,8 @@ namespace EmuInvaders.Emulator
 
         private Stopwatch timer = new Stopwatch();
 
+        private Dictionary<SoundType, nint> soundData = new Dictionary<SoundType, nint>();
+
         public Window()
         {
             machine = new SpaceInvadersMachine();
@@ -36,7 +40,7 @@ namespace EmuInvaders.Emulator
             emulatorThread = new Thread(machine.Run);
             emulatorThread.Start();
 
-            if (SDL_Init(SDL_INIT_VIDEO) < 0)
+            if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
             {
                 throw new SDLException("SDL could not initialise");
             }
@@ -48,10 +52,32 @@ namespace EmuInvaders.Emulator
             }
 
             renderer = SDL_CreateRenderer(window, -1, SDL_RendererFlags.SDL_RENDERER_ACCELERATED | SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC);
-
             if (renderer == nint.Zero)
             {
                 throw new SDLException("SDL could not create the renderer");
+            }
+
+            var openAudio = SDL_mixer.Mix_OpenAudio(44100, AUDIO_S16LSB, 1, 512);
+            if (openAudio != 0)
+            {
+                throw new SDLException("SDL could not open the SDL audio mixer");
+            }
+
+            var allocateChannels = SDL_mixer.Mix_AllocateChannels(3);
+            if (allocateChannels == 0)
+            {
+                throw new SDLException("SDL could not allocate SDL audio mixer chnanels");
+            }
+
+            var soundTypes = Enum.GetValues(typeof(SoundType)).Cast<SoundType>().Where(x => ((int)x) >= 0);
+            foreach (var type in soundTypes)
+            {
+                var sound = SDL_mixer.Mix_LoadWAV($"sound/{(int)type}.wav");
+                if (sound == 0)
+                {
+                    throw new SDLException("SDL failed to load sound file");
+                }
+                soundData[type] = sound;
             }
 
             SDL_RenderSetLogicalSize(renderer, RenderWidth, RenderHeight);
@@ -70,6 +96,7 @@ namespace EmuInvaders.Emulator
 
                 PollForEvents();
                 Render();
+                PlaySounds();
 
                 if (timer.Elapsed.TotalMilliseconds < (1000 / TargetHz))
                 {
@@ -124,32 +151,32 @@ namespace EmuInvaders.Emulator
                     quit = true;
                     break;
                 case SDL_Keycode.SDLK_LEFT:
-                    KeyPress(keyEvent, KeyCode.Left);
+                    KeyPress(keyEvent, Button.Left);
                     break;
                 case SDL_Keycode.SDLK_RIGHT:
-                    KeyPress(keyEvent, KeyCode.Right);
+                    KeyPress(keyEvent, Button.Right);
                     break;
                 case SDL_Keycode.SDLK_SPACE:
-                    KeyPress(keyEvent, KeyCode.Fire);
+                    KeyPress(keyEvent, Button.Fire);
                     break;
                 case SDL_Keycode.SDLK_c:
-                    KeyPress(keyEvent, KeyCode.Coin);
+                    KeyPress(keyEvent, Button.Coin);
                     break;
                 case SDL_Keycode.SDLK_RETURN:
-                    KeyPress(keyEvent, KeyCode.Start);
+                    KeyPress(keyEvent, Button.Start);
                     break;
             }
         }
 
-        private void KeyPress(SDL_EventType eventType, KeyCode keyCode)
+        private void KeyPress(SDL_EventType eventType, Button keyCode)
         {
             if (eventType == SDL_EventType.SDL_KEYDOWN)
             {
-                machine.Keyboard.KeyDown(keyCode);
+                machine.Keyboard.ButtonDown(keyCode);
             }
             else if (eventType == SDL_EventType.SDL_KEYUP)
             {
-                machine.Keyboard.KeyUp(keyCode);
+                machine.Keyboard.ButtonUp(keyCode);
             }
         }
 
@@ -189,6 +216,53 @@ namespace EmuInvaders.Emulator
             }
 
             SDL_RenderPresent(renderer);
+        }
+
+        private void PlaySounds()
+        {
+            foreach (var soundType in machine.Audio.GetSoundsToPlay())
+            {
+                int result = -1;
+
+                if (soundType == SoundType.UfoEnd)
+                {
+                    SDL_mixer.Mix_Pause(GetAudioChannel(soundType));
+                    result = 0;
+                }
+                else
+                {
+                    if (soundType == SoundType.UfoStart)
+                    {
+                        result = SDL_mixer.Mix_PlayChannel(GetAudioChannel(soundType), soundData[soundType], -1);
+                    }
+                    else
+                    {
+                        result = SDL_mixer.Mix_PlayChannel(GetAudioChannel(soundType), soundData[soundType], 0);
+                    }
+                }
+
+                if (result == -1)
+                {
+                    throw new SDLException("Error playing sound effect");
+                }
+            }
+        }
+
+        private int GetAudioChannel(SoundType type)
+        {
+            switch (type)
+            {
+                case SoundType.UfoStart:
+                case SoundType.UfoEnd:
+                    return 0;
+                case SoundType.FleetMovement1:
+                case SoundType.FleetMovement2:
+                case SoundType.FleetMovement3:
+                case SoundType.FleetMovement4:
+                    return 1;
+                default:
+                    return 2;
+            }
         }
 
         public void Dispose()
