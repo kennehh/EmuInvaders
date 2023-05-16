@@ -72,7 +72,7 @@ namespace EmuInvaders.Emulator
             var soundTypes = Enum.GetValues(typeof(SoundType)).Cast<SoundType>().Where(x => ((int)x) >= 0);
             foreach (var type in soundTypes)
             {
-                var sound = SDL_mixer.Mix_LoadWAV($"sound/{(int)type}.wav");
+                var sound = SDL_mixer.Mix_LoadWAV(Path.Combine("sound", $"{(int)type}.wav"));
                 if (sound == 0)
                 {
                     throw new SDLException("SDL failed to load sound file");
