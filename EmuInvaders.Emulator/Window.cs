@@ -19,6 +19,7 @@ namespace EmuInvaders.Emulator
         private const int RenderHeight = 256;
         private const int InitialWindowWidth = RenderWidth * 3;
         private const int InitialWindowHeight = RenderHeight * 3;
+        private const int TargetHz = 60;
 
         private nint window = nint.Zero;
         private nint renderer = nint.Zero;
@@ -31,7 +32,6 @@ namespace EmuInvaders.Emulator
         private int windowHeight = InitialWindowHeight;
 
         private Stopwatch timer = new Stopwatch();
-        private const int TargetHz = 60;
 
         public Window()
         {
@@ -49,7 +49,7 @@ namespace EmuInvaders.Emulator
                 throw new SDLException("SDL could not initialise");
             }
 
-            window = SDL_CreateWindow("Space Invaders Yo", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
+            window = SDL_CreateWindow("EmuInvaders", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
             if (window == nint.Zero)
             {
                 throw new SDLException("SDL could not create the window");
@@ -202,7 +202,6 @@ namespace EmuInvaders.Emulator
         public void Dispose()
         {
             machine.Stop();
-            emulatorThread.Join();
 
             SDL_DestroyRenderer(renderer);
             SDL_DestroyWindow(window);

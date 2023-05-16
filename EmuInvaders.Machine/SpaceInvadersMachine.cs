@@ -11,17 +11,17 @@ namespace EmuInvaders.Machine
     {
         public Keyboard Keyboard { get; } = new Keyboard();
 
+        private const int HardwareHz = 60;
+        private const int CpuSpeedHz = 2000000; // 2MHz
+        private const int CpuTicksPerMillisecond = CpuSpeedHz / 1000;
+        private const int ExpectedMillisecondsPerInterrupt = 1000 / (HardwareHz * 2);
+        private const int ExpectedCpuCyclesPerInterrupt = ExpectedMillisecondsPerInterrupt * CpuTicksPerMillisecond;
+
         private readonly Intel8080 cpu = new Intel8080();
         private readonly ShiftRegister shiftRegister = new ShiftRegister();
         private readonly Stopwatch timer = new Stopwatch();
         private int nextInterrupt = 0x08;
         private bool stop = false;
-
-        private const int HardwareHz = 60;
-        private const int CpuSpeedHz = 2000000; // 2MHz
-        private const int CpuTicksPerMillisecond = CpuSpeedHz / 1000; // 2MHz
-        private const int ExpectedMillisecondsPerInterrupt = 1000 / (HardwareHz * 2);
-        private const int ExpectedCpuCyclesPerInterrupt = ExpectedMillisecondsPerInterrupt * CpuTicksPerMillisecond;
 
         public void Initialise()
         {
@@ -82,10 +82,7 @@ namespace EmuInvaders.Machine
             //  bit 5 Left
             //  bit 6 Right
             //  bit 7 ? tied to demux port 7 ?
-            cpu.ConnectInputDevice(0, () =>
-            {
-                return 0b0001110;
-            });
+            cpu.ConnectInputDevice(0, () => 0b0001110);
 
             //  Port 1
             //  bit 0 = CREDIT (1 if deposit)

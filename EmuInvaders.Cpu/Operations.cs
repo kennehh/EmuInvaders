@@ -177,7 +177,6 @@ namespace EmuInvaders.Cpu
 
             var result = state.A + add;
             state.Flags.SetNonCarryFlags(result);
-            //state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.Carry | FlagOptions.AuxCarry);
             state.A = (byte)result;
 
             return 4;
@@ -199,7 +198,6 @@ namespace EmuInvaders.Cpu
             state.Flags.SetNonCarryFlags(result);
             state.Flags.SetCarry(result);
             
-            //state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.Carry | FlagOptions.AuxCarry);
             state.A = (byte)result;
             return isMemoryOperation ? 7 : 4;
         }
@@ -220,7 +218,6 @@ namespace EmuInvaders.Cpu
             state.Flags.SetNonCarryFlags(result);
             state.Flags.SetCarry(result);
 
-            //state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.Carry | FlagOptions.AuxCarry);
             state.A = (byte)result;
             return isMemoryOperation ? 7 : 4;
         }
@@ -233,7 +230,6 @@ namespace EmuInvaders.Cpu
             state.Flags.SetNonCarryFlags(result);
             state.Flags.AuxCarry = ((state.A | value) & 0x08) != 0; // special case on 8080 documented by intel p1-12
             state.Flags.Carry = false;
-            //state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.CarryClear | FlagOptions.AuxCarry);
             state.A = (byte)result;
             return register == Register.M ? 7 : 4;
         }
@@ -241,12 +237,11 @@ namespace EmuInvaders.Cpu
         public static int ANI(CpuState state)
         {
             var value = state.GetImmediateInt8();
-            var result = state.A & state.GetImmediateInt8();
+            var result = state.A & value;
 
             state.Flags.SetNonCarryFlags(result);
-            state.Flags.AuxCarry = false;
+            state.Flags.AuxCarry = ((state.A | value) & 0x08) != 0; // special case on 8080 documented by intel p1-12
             state.Flags.Carry = false;
-            //state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.CarryClear | FlagOptions.AuxCarryClear);
             state.A = (byte)result;
             return 7;
         }
@@ -257,7 +252,6 @@ namespace EmuInvaders.Cpu
             state.Flags.AuxCarry = false;
             state.Flags.Carry = false;
             state.Flags.SetNonCarryFlags(result);
-            //state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.CarryClear | FlagOptions.AuxCarryClear);
             state.A = (byte)result;
             return register == Register.M ? 7 : 4;
         }
@@ -268,7 +262,6 @@ namespace EmuInvaders.Cpu
             state.Flags.AuxCarry = false;
             state.Flags.Carry = false;
             state.Flags.SetNonCarryFlags(result);
-            //state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.CarryClear | FlagOptions.AuxCarryClear);
             state.A = (byte)result;
             return 7;
         }
@@ -279,7 +272,6 @@ namespace EmuInvaders.Cpu
             state.Flags.AuxCarry = false;
             state.Flags.Carry = false;
             state.Flags.SetNonCarryFlags(result);
-            //state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.CarryClear | FlagOptions.AuxCarryClear);
             state.A = (byte)result;
             return register == Register.M ? 7 : 4;
         }
@@ -290,7 +282,6 @@ namespace EmuInvaders.Cpu
             state.Flags.AuxCarry = false;
             state.Flags.Carry = false;
             state.Flags.SetNonCarryFlags(result);
-            //state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.CarryClear | FlagOptions.AuxCarryClear);
             state.A = (byte)result;
             return 7;
         }
@@ -302,7 +293,6 @@ namespace EmuInvaders.Cpu
             state.Flags.SetSubAuxCarry(state.A, value);
             state.Flags.SetNonCarryFlags(result);
             state.Flags.SetCarry(result);
-            //state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.Carry | FlagOptions.AuxCarry);
             return register == Register.M ? 7 : 4;
         }
 
@@ -313,7 +303,6 @@ namespace EmuInvaders.Cpu
             state.Flags.SetSubAuxCarry(state.A, value);
             state.Flags.SetNonCarryFlags(result);
             state.Flags.SetCarry(result);
-            //state.Flags.SetFlags(state.A, result, FlagOptions.Zero | FlagOptions.Sign | FlagOptions.Parity | FlagOptions.Carry | FlagOptions.AuxCarry);
             return 7;
         }
 
