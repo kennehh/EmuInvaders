@@ -17,9 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="8080EX1.COM">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="8080EXM.COM">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

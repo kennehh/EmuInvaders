@@ -1,15 +1,7 @@
 ﻿using EmuInvaders.Machine;
-using SDL2;
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Reflection.PortableExecutable;
-using System.Text;
-using System.Threading.Tasks;
 using static SDL2.SDL;
-using static System.Runtime.CompilerServices.RuntimeHelpers;
 
 namespace EmuInvaders.Emulator
 {

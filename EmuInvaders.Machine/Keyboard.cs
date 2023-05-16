@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EmuInvaders.Machine
+﻿namespace EmuInvaders.Machine
 {
     public class Keyboard
     {

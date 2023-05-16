@@ -167,7 +167,12 @@ namespace EmuInvaders.Cpu
 
         public static int DAA(CpuState state)
         {
-            var add = state.Flags.AuxCarry || (state.A & 0x0f) > 9 ? 0x06 : 0;
+            byte add = 0;
+
+            if (state.Flags.AuxCarry || (state.A & 0x0f) > 9)
+            {
+                add = 0x06;
+            }
 
             if (state.Flags.Carry || (state.A >> 4) > 9 || (state.A >> 4) >= 9 && (state.A & 0x0f) > 9)
             {
@@ -176,7 +181,7 @@ namespace EmuInvaders.Cpu
             }
 
             var result = state.A + add;
-            state.Flags.SetAddAuxCarry(state.A, (byte)add);
+            state.Flags.SetAddAuxCarry(state.A, add);
             state.Flags.SetNonCarryFlags(result);
             state.A = (byte)result;
 

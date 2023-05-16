@@ -16,8 +16,8 @@ internal class Program
         //cpu.LoadCpuTestRom("CPUTEST.COM");
         //cpu.LoadCpuTestRom("TST8080.COM");
         //cpu.LoadCpuTestRom("8080PRE.COM");
-        cpu.LoadCpuTestRom("8080EX1.COM");
-        //cpu.LoadCpuTestRom("8080EXM.COM");
+        //cpu.LoadCpuTestRom("TEST.COM");
+        cpu.LoadCpuTestRom("8080EXM.COM");
         //cpu.State.OutputHandler = new OutputHandler();
         cpu.ConnectOutputDevice(0, val => stop = true);
         cpu.ConnectOutputDevice(1, PrintMessage);
