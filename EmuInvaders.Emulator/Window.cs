@@ -271,6 +271,13 @@ namespace EmuInvaders.Emulator
 
             SDL_DestroyRenderer(renderer);
             SDL_DestroyWindow(window);
+
+            foreach (var sound in soundData)
+            {
+                SDL_mixer.Mix_FreeChunk(sound.Value);
+            }
+            SDL_mixer.Mix_CloseAudio();
+
             SDL_Quit();
         }
     }
