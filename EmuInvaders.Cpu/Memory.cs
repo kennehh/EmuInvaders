@@ -54,8 +54,8 @@ namespace EmuInvaders.Cpu
 
         internal void WriteInt16(int address, ushort value)
         {
-            memory[address] = Utils.GetHighInt8(value);
-            memory[address + 1] = Utils.GetLowInt8(value);
+            memory[address] = Utils.GetLeastSignificantByte(value);
+            memory[address + 1] = Utils.GetMostSignificantByte(value);
         }
 
         public ReadOnlyMemory<byte> GetSubsetOfMemory(int start, int end)

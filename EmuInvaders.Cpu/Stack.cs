@@ -22,10 +22,10 @@ namespace EmuInvaders.Cpu
             SP -= 2;
         }
 
-        internal void Push(byte high, byte low)
+        internal void Push(byte lsb, byte msb)
         {
-            memory.WriteInt8((ushort)(SP - 2), high);
-            memory.WriteInt8((ushort)(SP - 1), low);
+            memory.WriteInt8((ushort)(SP - 2), lsb);
+            memory.WriteInt8((ushort)(SP - 1), msb);
             SP -= 2;
         }
 

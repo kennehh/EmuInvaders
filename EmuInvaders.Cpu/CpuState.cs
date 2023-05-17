@@ -29,8 +29,8 @@ namespace EmuInvaders.Cpu
             get => Utils.GetInt16(B, C);
             internal set
             {
-                C = Utils.GetHighInt8(value);
-                B = Utils.GetLowInt8(value);
+                C = Utils.GetLeastSignificantByte(value);
+                B = Utils.GetMostSignificantByte(value);
             }
         }
 
@@ -39,8 +39,8 @@ namespace EmuInvaders.Cpu
             get => Utils.GetInt16(D, E);
             internal set
             {
-                E = Utils.GetHighInt8(value);
-                D = Utils.GetLowInt8(value);
+                E = Utils.GetLeastSignificantByte(value);
+                D = Utils.GetMostSignificantByte(value);
             }
         }
 
@@ -49,8 +49,8 @@ namespace EmuInvaders.Cpu
             get => Utils.GetInt16(H, L);
             internal set
             {
-                L = Utils.GetHighInt8(value);
-                H = Utils.GetLowInt8(value);
+                L = Utils.GetLeastSignificantByte(value);
+                H = Utils.GetMostSignificantByte(value);
             }
         }
 

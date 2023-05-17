@@ -443,8 +443,8 @@ namespace EmuInvaders.Cpu
         public static int POP_PSW(CpuState cpuState)
         {
             var value = cpuState.Stack.Pop();
-            cpuState.A = Utils.GetLowInt8(value);
-            cpuState.Flags.PSW = Utils.GetHighInt8(value);
+            cpuState.A = Utils.GetMostSignificantByte(value);
+            cpuState.Flags.PSW = Utils.GetLeastSignificantByte(value);
             return 10;
         }
 
