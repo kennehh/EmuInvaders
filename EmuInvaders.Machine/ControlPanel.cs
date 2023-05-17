@@ -20,17 +20,17 @@
                 case Button.Coin:
                     InputValue |= 1 << 0;
                     break;
+                case Button.Start:
+                    InputValue |= 1 << 2;
+                    break;
+                case Button.Fire:
+                    InputValue |= 1 << 4;
+                    break;
                 case Button.Left:
                     InputValue |= 1 << 5;
                     break;
                 case Button.Right:
                     InputValue |= 1 << 6;
-                    break;
-                case Button.Fire:
-                    InputValue |= 1 << 4;
-                    break;
-                case Button.Start:
-                    InputValue |= 1 << 2;
                     break;
             }
         }
@@ -44,17 +44,17 @@
                     case Button.Coin:
                         InputValue &= (byte)(~(1 << 0));
                         break;
+                    case Button.Start:
+                        InputValue &= (byte)(~(1 << 2));
+                        break;
+                    case Button.Fire:
+                        InputValue &= (byte)(~(1 << 4));
+                        break;
                     case Button.Left:
                         InputValue &= (byte)(~(1 << 5));
                         break;
                     case Button.Right:
                         InputValue &= (byte)(~(1 << 6));
-                        break;
-                    case Button.Fire:
-                        InputValue &= (byte)(~(1 << 4));
-                        break;
-                    case Button.Start:
-                        InputValue &= (byte)(~(1 << 2));
                         break;
                 }
             }

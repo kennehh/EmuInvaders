@@ -41,24 +41,24 @@ namespace EmuInvaders.Machine
 
             if (port3Value != lastPort3Value)
             {
-                if ((port3Value & 0b00000001) == 0b00000001 && (lastPort3Value & 0b00000001) == 0)
+                if ((port3Value & 1 << 0) == 0b00000001 && (lastPort3Value & 1 << 0) == 0)
                 {
                     soundToPlay.Add(SoundType.UfoStart);
                 }
-                else if ((port3Value & 0b00000001) == 0 && (lastPort3Value & 0b00000001) == 0b00000001)
+                else if ((port3Value & 1 << 0) == 0 && (lastPort3Value & 1 << 0) == 1 << 0)
                 {
                     soundToPlay.Add(SoundType.UfoEnd);
                 }
 
-                if ((port3Value & 0b00000010) == 0b00000010 && (lastPort3Value & 0b00000010) == 0)
+                if ((port3Value & 1 << 1) == 1 << 1 && (lastPort3Value & 1 << 1) == 0)
                 {
                     soundToPlay.Add(SoundType.Shot);
                 }
-                if ((port3Value & 0b00000100) == 0b00000100 && (lastPort3Value & 0b00000100) == 0)
+                if ((port3Value & 1 << 2) == 1 << 2 && (lastPort3Value & 1 << 2) == 0)
                 {
                     soundToPlay.Add(SoundType.PlayerDie);
                 }
-                if ((port3Value & 0b00001000) == 0b00001000 && (lastPort3Value & 0b00001000) == 0)
+                if ((port3Value & 1 << 3) == 1 << 3 && (lastPort3Value & 1 << 3) == 0)
                 {
                     soundToPlay.Add(SoundType.InvaderDie);
                 }
@@ -68,23 +68,23 @@ namespace EmuInvaders.Machine
 
             if (port5Value != lastPort5Value)
             {
-                if ((port5Value & 0b00000001) == 0b00000001 && (lastPort5Value & 0b00000001) == 0)
+                if ((port5Value & 1 << 0) == 1 << 0 && (lastPort5Value & 1 << 0) == 0)
                 {
                     soundToPlay.Add(SoundType.FleetMovement1);
                 }
-                if ((port5Value & 0b00000010) == 0b00000010 && (lastPort5Value & 0b00000010) == 0)
+                if ((port5Value & 1 << 1) == 1 << 1 && (lastPort5Value & 1 << 1) == 0)
                 {
                     soundToPlay.Add(SoundType.FleetMovement2);
                 }
-                if ((port5Value & 0b00000100) == 0b00000100 && (lastPort5Value & 0b00000100) == 0)
+                if ((port5Value & 1 << 2) == 1 << 2 && (lastPort5Value & 1 << 2) == 0)
                 {
                     soundToPlay.Add(SoundType.FleetMovement3);
                 }
-                if ((port5Value & 0b00001000) == 0b00001000 && (lastPort5Value & 0b00001000) == 0)
+                if ((port5Value & 1 << 3) == 1 << 3 && (lastPort5Value & 1 << 3) == 0)
                 {
                     soundToPlay.Add(SoundType.FleetMovement4);
                 }
-                if ((port5Value & 0b00010000) == 0b00010000 && (lastPort5Value & 0b00010000) == 0)
+                if ((port5Value & 1 << 4) == 1 << 4 && (lastPort5Value & 1 << 4) == 0)
                 {
                     soundToPlay.Add(SoundType.UfoHit);
                 }

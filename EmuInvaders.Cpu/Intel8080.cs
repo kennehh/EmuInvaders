@@ -258,7 +258,7 @@ namespace EmuInvaders.Cpu
             new Opcode("XRI",       2,   state => Operations.XRI(state)),                         // 0xee
             new Opcode("RST 5",     1,   state => Operations.RST(state, 5 * 8)),                  // 0xef
             new Opcode("RP",        1,   state => Operations.RET(state, !state.Flags.Sign)),      // 0xf0
-            new Opcode("POP PSW",    1,   state => Operations.POP_PSW(state)),                    // 0xf1
+            new Opcode("POP PSW",   1,   state => Operations.POP_PSW(state)),                    // 0xf1
             new Opcode("JP adr",    3,   state => Operations.JMP(state, !state.Flags.Sign)),      // 0xf2
             new Opcode("DI",        1,   state => Operations.DI(state)),                          // 0xf3
             new Opcode("CP adr",    3,   state => Operations.CALL(state, !state.Flags.Sign)),     // 0xf4
@@ -330,7 +330,7 @@ namespace EmuInvaders.Cpu
             return cycles;
         }
 
-        public Opcode GetOpcode(byte code) => opcodes[code];
+        public static Opcode GetOpcode(byte code) => opcodes[code];
 
         public void ConnectInputDevice(byte port, Func<byte> inputFunc)
         {

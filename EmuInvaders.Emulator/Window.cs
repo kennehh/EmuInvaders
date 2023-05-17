@@ -18,7 +18,7 @@ namespace EmuInvaders.Emulator
         private nint window = nint.Zero;
         private nint renderer = nint.Zero;
 
-        private SpaceInvadersMachine machine = null;
+        private SpaceInvadersMachine machine = new SpaceInvadersMachine();
         private Thread emulatorThread = null;
 
         private bool quit = false;
@@ -28,11 +28,6 @@ namespace EmuInvaders.Emulator
         private Stopwatch timer = new Stopwatch();
 
         private Dictionary<SoundType, nint> soundData = new Dictionary<SoundType, nint>();
-
-        public Window()
-        {
-            machine = new SpaceInvadersMachine();
-        }
 
         public void Open() 
         {
