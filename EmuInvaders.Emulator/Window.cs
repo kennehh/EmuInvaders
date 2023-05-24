@@ -11,8 +11,8 @@ namespace EmuInvaders.Emulator
     {
         private const int RenderWidth = 224;
         private const int RenderHeight = 256;
-        private const int InitialWindowWidth = RenderWidth * 3;
-        private const int InitialWindowHeight = RenderHeight * 3;
+        private const int InitialWindowWidth = RenderWidth * 2;
+        private const int InitialWindowHeight = RenderHeight * 2;
         private const int TargetHz = 60;
 
         private nint window = nint.Zero;
